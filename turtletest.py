@@ -1,32 +1,59 @@
 #!/usr/bin/env python
-import turtle
+from turtle import Turtle, mainloop
+from random import expovariate as randexp
 
-arrive = [turtle.Turtle() for k in range(50)]
+class Player(Turtle):
+    def __init__(self, lmbda, mu, queue):
+        Turtle.__init__(self)
+        self.interarrivaltime = randexp(lmbda)
+        self.servicetime = randexp(mu)
+        self.queue = queue
+        self.shape('circle')
+    def move(self, x, y):
+        self.setx(x)
+        self.sety(y)
+    def arrive(self, t):
+        self.penup()
+        self.arrivaldate = t
+        self.move(self.queue.position[0], self.queue.position[1])
+        self.color('red')
+    def joinqueue(self):
+        self.move(self.queue.position[0] + 5, self.queue.position[1])
+        self.color('blue')
+        self.queue.join(self)
 
-queue = []
-service = []
-complete = []
-qposition = (200, 0)
+class Queue():
+    def __init__(self, qposition):
+        self.players = []
+        self.position = list(qposition)
+    def __iter__(self):
+        return iter(self.players)
+    def join(self, player):
+        self.players.append(player)
+        print self.position
+        self.position[0] -= 10
+    def leave(self, player):
+        for p in self:
+            x = p.position()[0]
+            y = p.position()[1]
+            p.move(x + 10, y)
 
-while arrive:
-    queue.append(arrive.pop())
-    queue[-1].penup()
-    if len(queue) == 1:
-        queue[-1].setx(qposition[0])
-    else:
-        queue[-1].setx(queue[-2].position()[0] -10)
-    queue[-1].color('red')
+class Sim():
+    def __init__(self, N, lmbda, mu, qposition=(200,-200)):
+        self.queue = Queue(qposition)
+        self.players = [Player(lmbda, mu, self.queue) for k in range(N)]
+    def run(self):
+        t = 0
+        nextplayer = self.players.pop()
+        nextplayer.arrive(t)
+        nextplayer.joinqueue()
+        while self.players:
+            t += 1
+            if t > self.players[-1].interarrivaltime + nextplayer.arrivaldate:
+                nextplayer = self.players.pop()
+                nextplayer.arrive(t)
+                nextplayer.joinqueue()
 
-    if len(service) == 0:
-        service.append(queue.pop())
-        service[-1].setx(qposition[0] + 5)
-        service[-1].color('blue')
-
-    if len(service) == 1:
-        complete.append(service.pop())
-        complete[-1].setx(qposition[0] + 50)
-        complete[-1].color('grey')
-
-
-
-turtle.mainloop()
+if __name__ == '__main__':
+    q = Sim(50, .01, 5)
+    q.run()
