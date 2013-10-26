@@ -29,10 +29,13 @@ class Player(Turtle):
             self.servicedate = t + self.servicetime
             self.server.start(self)
             self.color('green')
+            self.endqueuedate = t
     def endservice(self):
         self.move(self.server.position[0] + 50, self.server.position[1] - 50)
         self.color('black')
         self.server.players = self.server.players[1:]
+        self.endservicedate = self.endqueuedate + self.servicetime
+        self.waitingtime = self.endqueuedate - self.arrivaldate
         self.served = True
 
 
@@ -78,6 +81,8 @@ class Sim():
         self.server = Server([qposition[0] + 50, qposition[1]])
         self.players = [Player(lmbda, mu, self.queue, self.server) for k in range(N)]
         self.completed = []
+        self.queuelengthdict = {}
+        self.systemstatedict = {}
     def run(self):
         t = 0
         nextplayer = self.players.pop()
@@ -98,7 +103,29 @@ class Sim():
                 nextplayer = self.players.pop()
                 nextplayer.arrive(t)
                 nextplayer.joinqueue()
+            self.queuelengthdict[t] = len(self.queue)
+            if self.server.free():
+                self.systemstatedict[t] = 0
+            else:
+                self.systemstatedict[t] = self.queuelengthdict[t] + 1
+    def plot(self, warmup=0):
+        queuelengths = []
+        systemstates = []
+        for t in self.queuelengthdict:
+            if t >= warmup:
+                queuelengths.append(self.queuelengthdict[t])
+                systemstates.append(self.systemstatedict[t])
+        import matplotlib.pyplot as plt
+        plt.figure(1)
+        plt.subplot(211)
+        plt.hist(queuelengths, normed=True)
+        plt.title("Queue length")
+        plt.subplot(212)
+        plt.hist(systemstates, normed=True)
+        plt.title("System state")
+        plt.show()
 
 if __name__ == '__main__':
     q = Sim(50, .019, .02)
     q.run()
+    q.plot()
