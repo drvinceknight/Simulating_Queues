@@ -1,6 +1,16 @@
 #!/usr/bin/env python
+from __future__ import division
 from turtle import Turtle, mainloop
 from random import expovariate as randexp
+
+def mean(lst):
+    return sum(lst) / len(lst)
+
+def movingaverage(lst):
+    """
+    Custom built function to obtain moving average
+    """
+    return [mean(lst[:k]) for k in range(1 , len(lst) + 1)]
 
 class Player(Turtle):
     def __init__(self, lmbda, mu, queue, server):
@@ -56,7 +66,6 @@ class Queue():
         return self.players.pop(index)
     def join(self, player):
         self.players.append(player)
-        print self.position
         self.position[0] -= 10
 
 class Server():
@@ -111,18 +120,26 @@ class Sim():
     def plot(self, warmup=0):
         queuelengths = []
         systemstates = []
+        timepoints = []
         for t in self.queuelengthdict:
             if t >= warmup:
                 queuelengths.append(self.queuelengthdict[t])
                 systemstates.append(self.systemstatedict[t])
+                timepoints.append(t)
         import matplotlib.pyplot as plt
         plt.figure(1)
-        plt.subplot(211)
+        plt.subplot(221)
         plt.hist(queuelengths, normed=True)
         plt.title("Queue length")
-        plt.subplot(212)
+        plt.subplot(222)
         plt.hist(systemstates, normed=True)
         plt.title("System state")
+        plt.subplot(223)
+        plt.plot(timepoints, movingaverage(queuelengths))
+        plt.title("Mean queue length")
+        plt.subplot(224)
+        plt.plot(timepoints, movingaverage(systemstates))
+        plt.title("Mean system state")
         plt.show()
 
 if __name__ == '__main__':
