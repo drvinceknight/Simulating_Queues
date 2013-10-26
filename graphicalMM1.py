@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division
-from turtle import Turtle, mainloop, setup, reset, setworldcoordinates
+from turtle import Turtle, mainloop, setworldcoordinates
 from random import expovariate as randexp
 import sys
 
@@ -40,8 +40,8 @@ class Player(Turtle):
             self.color('green')
             self.endqueuedate = t
     def endservice(self):
+        self.color('red')
         self.move(self.server.position[0] + 50, self.server.position[1] - 50)
-        self.color('black')
         self.server.players = self.server.players[1:]
         self.endservicedate = self.endqueuedate + self.servicetime
         self.waitingtime = self.endqueuedate - self.arrivaldate
@@ -168,6 +168,6 @@ class Sim():
         plt.show()
 
 if __name__ == '__main__':
-    q = Sim(1000, .5, 1, speed=10)
+    q = Sim(100, .5, .001, speed=6)
     q.run()
     q.plot()
