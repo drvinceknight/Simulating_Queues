@@ -154,10 +154,10 @@ class Sim():
             return
         plt.figure(1)
         plt.subplot(221)
-        plt.hist(queuelengths, normed=True)
+        plt.hist(queuelengths, normed=True, bins=min(20, max(queuelengths)))
         plt.title("Queue length")
         plt.subplot(222)
-        plt.hist(systemstates, normed=True)
+        plt.hist(systemstates, normed=True, bins=min(20, max(systemstates)))
         plt.title("System state")
         plt.subplot(223)
         plt.plot(timepoints, movingaverage(queuelengths))
@@ -168,6 +168,6 @@ class Sim():
         plt.show()
 
 if __name__ == '__main__':
-    q = Sim(100, .5, .001, speed=6)
+    q = Sim(100, 1, 1, speed=10)
     q.run()
     q.plot()
