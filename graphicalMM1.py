@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division
 from turtle import Turtle, mainloop, setworldcoordinates
-from random import expovariate as randexp
+from random import expovariate as randexp, random
 import sys
 
 def mean(lst):
@@ -17,12 +17,15 @@ class Player(Turtle):
     def __init__(self, lmbda, mu, queue, server, speed):
         Turtle.__init__(self)
         self.interarrivaltime = randexp(lmbda)
-        self.servicetime = randexp(mu)
+        self.lmbda = lmbda
+        self.mu = mu
         self.queue = queue
-        self.server = server
-        self.shape('circle')
         self.served = False
+        self.server = server
+        self.servicetime = randexp(mu)
+        self.shape('circle')
         self.speed(speed)
+        self.balked = False
     def move(self, x, y):
         self.setx(x)
         self.sety(y)
@@ -33,19 +36,37 @@ class Player(Turtle):
         self.color('blue')
         self.queue.join(self)
     def startservice(self, t):
-        if not self.served:
+        if not self.served and not self.balked:
             self.move(self.server.position[0], self.server.position[1])
             self.servicedate = t + self.servicetime
             self.server.start(self)
             self.color('green')
             self.endqueuedate = t
     def endservice(self):
-        self.color('red')
+        self.color('grey')
         self.move(self.server.position[0] + 50, self.server.position[1] - 50)
         self.server.players = self.server.players[1:]
         self.endservicedate = self.endqueuedate + self.servicetime
         self.waitingtime = self.endqueuedate - self.arrivaldate
         self.served = True
+
+class SelfishPlayer(Player):
+    def __init__(self, lmbda, mu, queue, server, speed, costofbalking):
+        Player.__init__(self, lmbda, mu, queue, server, speed)
+        self.costofbalking = costofbalking
+    def arrive(self, t):
+        self.penup()
+        self.arrivaldate = t
+        self.color('red')
+        queuelength = len(self.queue)
+        if (queuelength + 1) / (self.mu) < self.costofbalking:
+            self.queue.join(self)
+            self.move(self.queue.position[0] + 5, self.queue.position[1])
+        else:
+            self.balk()
+            self.balked = True
+    def balk(self):
+        self.move(0, self.queue.position[1] - 25)
 
 
 class Queue():
@@ -83,9 +104,10 @@ class Server():
         return len(self.players) == 0
 
 class Sim():
-    def __init__(self, T, lmbda, mu, speed=6):
+    def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
         setworldcoordinates(-10,-110,275,10)
         qposition = [150, -50]
+        self.costofbalking = costofbalking
         self.T = T
         self.completed = []
         self.lmbda = lmbda
@@ -98,7 +120,15 @@ class Sim():
         self.systemstatedict = {}
     def newplayer(self):
         if len(self.players) == 0:
-            self.players.append(Player(self.lmbda, self.mu, self.queue, self.server,self.speed))
+            if not self.costofbalking:
+                self.players.append(Player(self.lmbda, self.mu, self.queue, self.server,self.speed))
+            elif type(self.costofbalking) is list:
+                if random() < self.costofbalking[0]:
+                    self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking[1]))
+                else:
+                    self.players.append(Player(self.lmbda, self.mu, self.queue, self.server,self.speed))
+            else:
+                self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking))
     def printprogress(self, t):
         sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)' % (100 * t/self.T, t, self.T))
         sys.stdout.flush()
@@ -168,6 +198,8 @@ class Sim():
         plt.show()
 
 if __name__ == '__main__':
-    q = Sim(100, 1, 1, speed=10)
+    #q = Sim(1000, .5, 1, speed=10)
+    q = Sim(200, 3, 1, speed=10, costofbalking = [.5,3])
+    #q = Sim(200, 2, 1, speed=10, costofbalking = 1)
     q.run()
     q.plot()
