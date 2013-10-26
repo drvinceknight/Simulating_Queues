@@ -2,6 +2,7 @@
 from __future__ import division
 from turtle import Turtle, mainloop
 from random import expovariate as randexp
+import sys
 
 def mean(lst):
     return sum(lst) / len(lst)
@@ -84,39 +85,48 @@ class Server():
         return len(self.players) == 0
 
 class Sim():
-    def __init__(self, N, lmbda, mu, qposition=[200,-200]):
-        self.N = N
+    def __init__(self, T, lmbda, mu, qposition=[200,-200]):
+        self.T = T
+        self.lmbda = lmbda
+        self.mu = mu
         self.queue = Queue(qposition)
         self.server = Server([qposition[0] + 50, qposition[1]])
-        self.players = [Player(lmbda, mu, self.queue, self.server) for k in range(N)]
         self.completed = []
         self.queuelengthdict = {}
         self.systemstatedict = {}
     def run(self):
         t = 0
+        self.players = [Player(self.lmbda, self.mu, self.queue, self.server)]
         nextplayer = self.players.pop()
         nextplayer.arrive(t)
         nextplayer.joinqueue()
-        while len(self.completed) < self.N:
+        while t < self.T:
             t += 1
-            if self.server.free():
-                if len(self.queue) == 0:
+            # Print progress to screen:
+            sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)' % (100 * t/self.T, t, self.T))
+            sys.stdout.flush()
+            if self.server.free():  # Check if server is free
+                if len(self.queue) == 0 and t > nextplayer.arrivaldate:
                     nextplayer.startservice(t)
                 else:
                     nextservice = self.queue.pop(0)
                     nextservice.startservice(t)
+                self.players.append(Player(self.lmbda, self.mu, self.queue, self.server))
             elif t > self.server.nextservicedate:
                 self.completed.append(self.server.players[0])
                 self.server.players[0].endservice()
+                self.players.append(Player(self.lmbda, self.mu, self.queue, self.server))
             if self.players and t > self.players[-1].interarrivaltime + nextplayer.arrivaldate:
                 nextplayer = self.players.pop()
                 nextplayer.arrive(t)
                 nextplayer.joinqueue()
+                self.players.append(Player(self.lmbda, self.mu, self.queue, self.server))
             self.queuelengthdict[t] = len(self.queue)
             if self.server.free():
                 self.systemstatedict[t] = 0
             else:
                 self.systemstatedict[t] = self.queuelengthdict[t] + 1
+
     def plot(self, warmup=0):
         queuelengths = []
         systemstates = []
@@ -143,6 +153,6 @@ class Sim():
         plt.show()
 
 if __name__ == '__main__':
-    q = Sim(50, .019, .02)
+    q = Sim(200, .5, 1)
     q.run()
     q.plot()
