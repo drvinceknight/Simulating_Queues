@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division
-from turtle import Turtle, mainloop, setup
+from turtle import Turtle, mainloop, setup, reset, setworldcoordinates
 from random import expovariate as randexp
 import sys
 
@@ -83,7 +83,9 @@ class Server():
         return len(self.players) == 0
 
 class Sim():
-    def __init__(self, T, lmbda, mu, qposition=[200,-200], speed=6):
+    def __init__(self, T, lmbda, mu, speed=6):
+        setworldcoordinates(-10,-110,275,10)
+        qposition = [150, -50]
         self.T = T
         self.completed = []
         self.lmbda = lmbda
