@@ -100,5 +100,5 @@ class Sim():
                 nextplayer.joinqueue()
 
 if __name__ == '__main__':
-    q = Sim(50, .015, .02)
+    q = Sim(50, .019, .02)
     q.run()
