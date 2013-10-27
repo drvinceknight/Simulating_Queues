@@ -13,6 +13,21 @@ def movingaverage(lst):
     """
     return [mean(lst[:k]) for k in range(1 , len(lst) + 1)]
 
+def naorthreshold(lmbda, mu, costofbalking):
+    """
+    Function to return Naor's threshold for optimal behaviour in an M/M/1 queu
+    """
+    n = 0
+    center = mu * costofbalking
+    rho = lmbda / mu
+    while True:
+        LHS = (n*(1-rho)- rho * (1-rho**n))/((1-rho)**2)
+        RHS = ((n+1)*(1- rho)-rho*(1-rho**(n+1)))/((1-rho)**2)
+        if LHS <= center and center <RHS:
+            return n
+        n += 1
+
+
 class Player(Turtle):
     def __init__(self, lmbda, mu, queue, server, speed):
         Turtle.__init__(self)
@@ -68,6 +83,23 @@ class SelfishPlayer(Player):
     def balk(self):
         self.move(0, self.queue.position[1] - 25)
 
+class OptimalPlayer(Player):
+    def __init__(self, lmbda, mu, queue, server, speed, naorthreshold):
+        Player.__init__(self, lmbda, mu, queue, server, speed)
+        self.naorthreshold = naorthreshold
+    def arrive(self, t):
+        self.penup()
+        self.arrivaldate = t
+        self.color('gold')
+        queuelength = len(self.queue)
+        if (queuelength) < self.naorthreshold:
+            self.queue.join(self)
+            self.move(self.queue.position[0] + 5, self.queue.position[1])
+        else:
+            self.balk()
+            self.balked = True
+    def balk(self):
+        self.move(10, self.queue.position[1] - 25)
 
 class Queue():
     def __init__(self, qposition):
@@ -105,6 +137,9 @@ class Server():
 
 class Sim():
     def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
+        """
+        costofbalking: an integer or a list. If it is a list, the first element is the probability of having a selfish player
+        """
         setworldcoordinates(-10,-110,275,10)
         qposition = [150, -50]
         self.costofbalking = costofbalking
@@ -117,6 +152,10 @@ class Sim():
         self.queuelengthdict = {}
         self.server = Server([qposition[0] + 50, qposition[1]])
         self.speed = max(0,min(10,speed))
+        if type(costofbalking) is list:
+            self.naorthreshold = naorthreshold(lmbda, mu, costofbalking[1])
+        else:
+            self.naorthreshold = naorthreshold(lmbda, mu, costofbalking)
         self.systemstatedict = {}
     def newplayer(self):
         if len(self.players) == 0:
@@ -126,7 +165,7 @@ class Sim():
                 if random() < self.costofbalking[0]:
                     self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking[1]))
                 else:
-                    self.players.append(Player(self.lmbda, self.mu, self.queue, self.server,self.speed))
+                    self.players.append(OptimalPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.naorthreshold))
             else:
                 self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking))
     def printprogress(self, t):
@@ -198,8 +237,10 @@ class Sim():
         plt.show()
 
 if __name__ == '__main__':
-    #q = Sim(1000, .5, 1, speed=10)
-    q = Sim(200, 3, 1, speed=10, costofbalking = [.5,3])
-    #q = Sim(200, 2, 1, speed=10, costofbalking = 1)
+    #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
+    #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
+    #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
+    #q = Sim(200, 2, 1, speed=10, costofbalking = [.2,7])
+    q = Sim(200, 2, 1, speed=10, costofbalking = [.5,7])
     q.run()
     q.plot()
