@@ -59,7 +59,7 @@ class Player(Turtle):
             self.endqueuedate = t
     def endservice(self):
         self.color('grey')
-        self.move(self.server.position[0] + 50, self.server.position[1] - 50)
+        self.move(self.server.position[0] + 50 + random(), self.server.position[1] - 50 + random())
         self.server.players = self.server.players[1:]
         self.endservicedate = self.endqueuedate + self.servicetime
         self.waitingtime = self.endqueuedate - self.arrivaldate
@@ -81,7 +81,7 @@ class SelfishPlayer(Player):
             self.balk()
             self.balked = True
     def balk(self):
-        self.move(0, self.queue.position[1] - 25)
+        self.move(random(), self.queue.position[1] - 25 + random())
 
 class OptimalPlayer(Player):
     def __init__(self, lmbda, mu, queue, server, speed, naorthreshold):
@@ -99,7 +99,7 @@ class OptimalPlayer(Player):
             self.balk()
             self.balked = True
     def balk(self):
-        self.move(10, self.queue.position[1] - 25)
+        self.move(10 + random(), self.queue.position[1] - 25 + random())
 
 class Queue():
     def __init__(self, qposition):
@@ -140,8 +140,12 @@ class Sim():
         """
         costofbalking: an integer or a list. If it is a list, the first element is the probability of having a selfish player
         """
-        setworldcoordinates(-10,-110,275,10)
-        qposition = [150, -50]
+        bLx = -10
+        bLy = -110
+        tRx = 230
+        tRy = 5
+        setworldcoordinates(bLx,bLy,tRx,tRy)
+        qposition = [(tRx+bLx)/2, (tRy+bLy)/2]
         self.costofbalking = costofbalking
         self.T = T
         self.completed = []
@@ -241,6 +245,6 @@ if __name__ == '__main__':
     #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.2,7])
-    q = Sim(200, 2, 1, speed=10, costofbalking = [.5,7])
+    q = Sim(200, 2, 1, speed=0, costofbalking = [.5,7])
     q.run()
     q.plot()
