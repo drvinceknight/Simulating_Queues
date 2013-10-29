@@ -309,13 +309,23 @@ class Sim():
 
     Attributes:
         - costofbalking (by default set to False for a basic simulation). Can be a float (indicating the cost of balking) in which case all players act selfishly. Can also be a list: l. In which case l[0] represents proportion of selfish players (other players being social players). l[1] then indicates cost of balking.
+        - naorthresholed (by default set to False for a basic simulation). Can be an integer (not to be input but calculated using costofbalking).
         - T total run time (float)
         - lmbda: arrival rate (float)
         - mu: service rate (float)
         - players: list of players (list)
+        - queue: a queue object
+        - queuelengthdict: a dictionary that keeps track of queue length at given times (for data handling)
+        - systemstatedict: a dictionary that keeps track of system state at given times (for data handling)
+        - server: a server object
+        - speed: the speed of the graphical animation
 
     Methods:
         - run: runs the simulation model
+        - newplayer: generates a new player (that does not arrive until the clock advances past their arrivaldate)
+        - printprogress: print the progress of the simulation to stdout
+        - collectdata: collects data at time t
+        - plot: plots summary graphs
     """
     def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
         """
@@ -337,6 +347,7 @@ class Sim():
         self.queuelengthdict = {}
         self.server = Server([qposition[0] + 50, qposition[1]])
         self.speed = max(0,min(10,speed))
+        self.naorthreshold = False
         if type(costofbalking) is list:
             self.naorthreshold = naorthreshold(lmbda, mu, costofbalking[1])
         else:
