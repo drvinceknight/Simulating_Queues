@@ -47,6 +47,12 @@ def plotwithnobalkers(queuelengths, systemstates, timepoints):
         - systemstates (list of integers)
         - timtepoints (list of integers)
     """
+    try:
+        import matplotlib.pyplot as plt
+    except:
+        sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
+        return
+
     plt.figure(1)
     plt.subplot(221)
     plt.hist(queuelengths, normed=True, bins=min(20, max(queuelengths)))
@@ -62,7 +68,7 @@ def plotwithnobalkers(queuelengths, systemstates, timepoints):
     plt.title("Mean system state")
     plt.show()
 
-def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, seflishsystemstates, optimalsystemstates, timepoints):
+def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints):
     """
     A function to plot histograms and timeseries when you have two types of players
 
@@ -73,28 +79,34 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, seflishsystemstate
         - optimalsystemstates (list of integers)
         - timtepoints (list of integers)
     """
+    try:
+        import matplotlib.pyplot as plt
+    except:
+        sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
+        return
     queuelengths = [sum(k) for k in zip(selfishqueuelengths, optimalqueuelengths)]
     systemstates = [sum(k) for k in zip(selfishsystemstates, optimalsystemstates)]
-    plt.figure(1)
+    fig = plt.figure(1)
     plt.subplot(221)
     plt.hist([selfishqueuelengths, optimalqueuelengths, queuelengths], normed=True, bins=min(20, max(queuelengths)), label=['Selfish players','Optimal players','Total players'])
-    plt.legend()
+    #plt.legend()
     plt.title("Queue length")
     plt.subplot(222)
     plt.hist([selfishsystemstates, optimalsystemstates, systemstates], normed=True, bins=min(20, max(systemstates)), label=['Selfish players','Optimal players','Total players'])
-    plt.legend()
+    #plt.legend()
     plt.title("System state")
     plt.subplot(223)
     plt.plot(timepoints, movingaverage(selfishqueuelengths), label='Selfish players')
     plt.plot(timepoints, movingaverage(optimalqueuelengths), label='Optimal players', color='green')
     plt.plot(timepoints, movingaverage(queuelengths), label='Total', color='red')
-    plt.legend()
+    #plt.legend()
     plt.title("Mean queue length")
     plt.subplot(224)
-    plt.plot(timepoints, movingaverage(selfishsystemstates), label='Selfish players')
-    plt.plot(timepoints, movingaverage(optimalsystemstates), label='Optimal players', color='green')
-    plt.plot(timepoints, movingaverage(systemstates), label='Total', color='red')
-    plt.legend()
+    a = plt.plot(timepoints, movingaverage(selfishsystemstates), label='Selfish players')
+    b = plt.plot(timepoints, movingaverage(optimalsystemstates), label='Optimal players', color='green')
+    c = plt.plot(timepoints, movingaverage(systemstates), label='Total', color='red')
+    #plt.legend()
+    fig.legend((a,b,c),('a','b','c'),'upper')
     plt.title("Mean system state")
     plt.show()
 
@@ -474,8 +486,8 @@ class Sim():
             if t > self.players[-1].interarrivaltime + nextplayer.arrivaldate:
                 nextplayer = self.players.pop()
                 nextplayer.arrive(t)
-                if player.balked:
-                    self.balkers.append(nextplayer)
+                if nextplayer.balked:
+                    self.balked.append(nextplayer)
                 if self.server.free():
                     if len(self.queue) == 0:
                         nextplayer.startservice(t)
@@ -493,22 +505,38 @@ class Sim():
 
         Outputs: NA
         """
-        self.queuelengthdict[t] = len(self.queue)
-        if self.server.free():
-            self.systemstatedict[t] = 0
+        if self.costofbalking:
+            selfishqueuelength = len([k for k in self.queue if type(k) is SelfishPlayer])
+            self.queuelengthdict[t] = [selfishqueuelength,len(self.queue) - selfishqueuelength]
+            if self.server.free():
+                self.systemstatedict[t] = [0,0]
+            else:
+                self.systemstatedict[t] = [self.queuelengthdict[t][0] + len([p for p in self.server.players if type(p) is SelfishPlayer]),self.queuelengthdict[t][1] + len([p for p in self.server.players if type(p) is OptimalPlayer])]
         else:
-            self.systemstatedict[t] = self.queuelengthdict[t] + 1
+            self.queuelengthdict[t] = len(self.queue)
+            if self.server.free():
+                self.systemstatedict[t] = 0
+            else:
+                self.systemstatedict[t] = self.queuelengthdict[t] + 1
 
     def plot(self, warmup=0):
         """
         Plot the data
         """
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
-            return
         if self.costofbalking:
+            selfishqueuelengths = []
+            optimalqueuelengths = []
+            selfishsystemstates = []
+            optimalsystemstates = []
+            timepoints = []
+            for t in self.queuelengthdict:
+                if t >= warmup:
+                    selfishqueuelengths.append(self.queuelengthdict[t][0])
+                    optimalqueuelengths.append(self.queuelengthdict[t][1])
+                    selfishsystemstates.append(self.systemstatedict[t][0])
+                    optimalsystemstates.append(self.systemstatedict[t][1])
+                    timepoints.append(t)
+            plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints)
         else:
             queuelengths = []
             systemstates = []
@@ -518,13 +546,13 @@ class Sim():
                     queuelengths.append(self.queuelengthdict[t])
                     systemstates.append(self.systemstatedict[t])
                     timepoints.append(t)
-            plotwithnobalkers()
+            plotwithnobalkers(queuelengths, systemstates, timepoints)
 
 if __name__ == '__main__':
     #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.2,7])
-    q = Sim(200, 2, 1, speed=0, costofbalking = [.5,7])
+    q = Sim(50, 2, 1, speed=0, costofbalking = [.5,7])
     q.run()
     q.plot()
