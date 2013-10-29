@@ -268,6 +268,17 @@ class Queue():
         self.position[0] -= 10
 
 class Server():
+    """
+    A class for the server (this could theoretically be modified to allow for more complex queues than M/M/1)
+
+    Attributes:
+        - players: list of players in service (at present will be just the one player)
+        - position: graphical position of queue
+
+    Methods:
+        - start: starts the service of a given player
+        - free: a method that returns free if the server is free
+    """
     def __init__(self, svrposition):
         self.players = []
         self.position = svrposition
@@ -276,10 +287,20 @@ class Server():
     def __len__(self):
         return len(self.players)
     def start(self,player):
+        """
+        A function that starts the service of a player (there is some functionality already in place in case multi server queue ever gets programmed). Moves all graphical stuff.
+
+        Arguments: A player object
+
+        Outputs: NA
+        """
         self.players.append(player)
         self.players = sorted(self.players, key = lambda x : x.servicedate)
         self.nextservicedate =  self.players[0].servicedate
     def free(self):
+        """
+        Returns True if server is empty.
+        """
         return len(self.players) == 0
 
 class Sim():
