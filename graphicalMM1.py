@@ -38,6 +38,55 @@ def movingaverage(lst):
     """
     return [mean(lst[:k]) for k in range(1 , len(lst) + 1)]
 
+def plotwithnobalkers(queuelengths, systemstates, timepoints):
+    """
+    A function to plot histograms and timeseries.
+
+    Arguments:
+        - queuelengths (list of integers)
+        - systemstates (list of integers)
+        - timtepoints (list of integers)
+    """
+    plt.figure(1)
+    plt.subplot(221)
+    plt.hist(queuelengths, normed=True, bins=min(20, max(queuelengths)))
+    plt.title("Queue length")
+    plt.subplot(222)
+    plt.hist(systemstates, normed=True, bins=min(20, max(systemstates)))
+    plt.title("System state")
+    plt.subplot(223)
+    plt.plot(timepoints, movingaverage(queuelengths))
+    plt.title("Mean queue length")
+    plt.subplot(224)
+    plt.plot(timepoints, movingaverage(systemstates))
+    plt.title("Mean system state")
+    plt.show()
+
+def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, seflishsystemstates, optimalsystemstates, timepoints):
+    """
+    A function to plot histograms and timeseries when you have two types of players
+
+    Arguments:
+        - selfishqueuelengths (list of integers)
+        - optimalqueuelengths (list of integers)
+        - selfishsystemstates (list of integers)
+        - optimalsystemstates (list of integers)
+        - timtepoints (list of integers)
+    """
+    plt.figure(1)
+    plt.subplot(221)
+    plt.hist(selfishqueuelengths, normed=True, bins=min(20, max(queuelengths)))
+    plt.title("Queue length")
+    plt.subplot(222)
+    plt.hist(systemstates, normed=True, bins=min(20, max(systemstates)))
+    plt.title("System state")
+    plt.subplot(223)
+    plt.plot(timepoints, movingaverage(queuelengths))
+    plt.title("Mean queue length")
+    plt.subplot(224)
+    plt.plot(timepoints, movingaverage(systemstates))
+    plt.title("Mean system state")
+    plt.show()
 def naorthreshold(lmbda, mu, costofbalking):
     """
     Function to return Naor's threshold for optimal behaviour in an M/M/1 queue. This is taken from Naor's 1969 paper: 'The regulation of queue size by Levying Tolls'
@@ -327,6 +376,7 @@ class Sim():
         - collectdata: collects data at time t
         - plot: plots summary graphs
     """
+
     def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
         ##################
         bLx = -10 # This sets the size of the canvas (I think that messing with this could increase speed of turtles)
@@ -353,6 +403,7 @@ class Sim():
         else:
             self.naorthreshold = naorthreshold(lmbda, mu, costofbalking)
         self.systemstatedict = {}
+
     def newplayer(self):
         """
         A method to generate a new player (takes in to account cost of balking). So if no cost of balking is passed: only generates a basic player. If a float is passed as cost of balking: generates selfish players with that float as worth of service. If a list is passed then it creates a player (either selfish or optimal) according to a random selection.
@@ -371,6 +422,7 @@ class Sim():
                     self.players.append(OptimalPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.naorthreshold))
             else:
                 self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking))
+
     def printprogress(self, t):
         """
         A method to print to screen the progress of the simulation.
@@ -381,6 +433,7 @@ class Sim():
         """
         sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)' % (100 * t/self.T, t, self.T))
         sys.stdout.flush()
+
     def run(self):
         """
         The main method which runs the simulation. This will collect relevant data throughout the simulation so that if matplotlib is installed plots of results can be accessed. Furthermore all completed players can be accessed in self.completed.
@@ -410,7 +463,7 @@ class Sim():
             if t > self.players[-1].interarrivaltime + nextplayer.arrivaldate:
                 nextplayer = self.players.pop()
                 nextplayer.arrive(t)
-                if player.balk:
+                if player.balked:
                     self.balkers.append(nextplayer)
                 if self.server.free():
                     if len(self.queue) == 0:
@@ -420,6 +473,7 @@ class Sim():
                         nextservice.startservice(t)
             self.newplayer()
             self.collectdata(t)
+
     def collectdata(self,t):
         """
         Collect data at each time step: updates data dictionaries.
@@ -433,10 +487,16 @@ class Sim():
             self.systemstatedict[t] = 0
         else:
             self.systemstatedict[t] = self.queuelengthdict[t] + 1
+
     def plot(self, warmup=0):
         """
         Plot the data
         """
+        try:
+            import matplotlib.pyplot as plt
+        except:
+            sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
+            return
         queuelengths = []
         systemstates = []
         timepoints = []
@@ -445,25 +505,7 @@ class Sim():
                 queuelengths.append(self.queuelengthdict[t])
                 systemstates.append(self.systemstatedict[t])
                 timepoints.append(t)
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
-            return
-        plt.figure(1)
-        plt.subplot(221)
-        plt.hist(queuelengths, normed=True, bins=min(20, max(queuelengths)))
-        plt.title("Queue length")
-        plt.subplot(222)
-        plt.hist(systemstates, normed=True, bins=min(20, max(systemstates)))
-        plt.title("System state")
-        plt.subplot(223)
-        plt.plot(timepoints, movingaverage(queuelengths))
-        plt.title("Mean queue length")
-        plt.subplot(224)
-        plt.plot(timepoints, movingaverage(systemstates))
-        plt.title("Mean system state")
-        plt.show()
+        plotwithnobalkers()
 
 if __name__ == '__main__':
     #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
