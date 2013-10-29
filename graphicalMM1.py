@@ -223,6 +223,18 @@ class OptimalPlayer(Player):
         self.move(10 + random(), self.queue.position[1] - 25 + random())
 
 class Queue():
+    """
+    A class for a queue.
+
+    Attributes:
+        players - a list of players in the queue
+        position - graphical position of queue
+
+    Methods:
+        pop - returns first in player from queue and updates queue graphics
+        join - makes a player join the queue
+
+    """
     def __init__(self, qposition):
         self.players = []
         self.position = qposition
@@ -231,6 +243,13 @@ class Queue():
     def __len__(self):
         return len(self.players)
     def pop(self, index):
+        """
+        A function to return a player from the queue and update graphics.
+
+        Arguments: index - the location of the player in the queue
+
+        Outputs: returns the relevant player
+        """
         for p in self.players[:index] + self.players[index + 1:]:  # Shift everyone up one queue spot
             x = p.position()[0]
             y = p.position()[1]
@@ -238,6 +257,13 @@ class Queue():
         self.position[0] += 10  # Reset queue position for next arrivals
         return self.players.pop(index)
     def join(self, player):
+        """
+        A method to make a player join the queue.
+
+        Arguments: player object
+
+        Outputs: NA
+        """
         self.players.append(player)
         self.position[0] -= 10
 
