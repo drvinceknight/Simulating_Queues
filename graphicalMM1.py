@@ -339,6 +339,7 @@ class Sim():
         self.costofbalking = costofbalking
         self.T = T
         self.completed = []
+        self.balked = []
         self.lmbda = lmbda
         self.mu = mu
         self.players = []
@@ -409,6 +410,8 @@ class Sim():
             if t > self.players[-1].interarrivaltime + nextplayer.arrivaldate:
                 nextplayer = self.players.pop()
                 nextplayer.arrive(t)
+                if player.balk:
+                    self.balkers.append(nextplayer)
                 if self.server.free():
                     if len(self.queue) == 0:
                         nextplayer.startservice(t)
