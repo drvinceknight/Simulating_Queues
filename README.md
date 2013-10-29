@@ -30,6 +30,7 @@ Currently on the to do list:
 - Change collection of results (to allow for balkers, selfish, social to be taken in to account).
 - Change plot of results.
 - Include csv write (of results)
+- Write command line argparse
 
 # License Information
 This work is licensed under a [Creative Commons Attribution-ShareAlike 3.0](http://creativecommons.org/licenses/by-sa/3.0/us/) license.  You are free to:
