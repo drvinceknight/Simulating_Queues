@@ -328,15 +328,14 @@ class Sim():
         - plot: plots summary graphs
     """
     def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
-        """
-        costofbalking: an integer or a list. If it is a list, the first element is the probability of having a selfish player
-        """
-        bLx = -10
+        ##################
+        bLx = -10 # This sets the size of the canvas (I think that messing with this could increase speed of turtles)
         bLy = -110
         tRx = 230
         tRy = 5
         setworldcoordinates(bLx,bLy,tRx,tRy)
-        qposition = [(tRx+bLx)/2, (tRy+bLy)/2]
+        qposition = [(tRx+bLx)/2, (tRy+bLy)/2]  # The position of the queue
+        ##################
         self.costofbalking = costofbalking
         self.T = T
         self.completed = []
@@ -354,6 +353,13 @@ class Sim():
             self.naorthreshold = naorthreshold(lmbda, mu, costofbalking)
         self.systemstatedict = {}
     def newplayer(self):
+        """
+        A method to generate a new player (takes in to account cost of balking). So if no cost of balking is passed: only generates a basic player. If a float is passed as cost of balking: generates selfish players with that float as worth of service. If a list is passed then it creates a player (either selfish or optimal) according to a random selection.
+
+        Arguments: NA
+
+        Outputs: NA
+        """
         if len(self.players) == 0:
             if not self.costofbalking:
                 self.players.append(Player(self.lmbda, self.mu, self.queue, self.server,self.speed))
@@ -365,9 +371,23 @@ class Sim():
             else:
                 self.players.append(SelfishPlayer(self.lmbda, self.mu, self.queue, self.server,self.speed, self.costofbalking))
     def printprogress(self, t):
+        """
+        A method to print to screen the progress of the simulation.
+
+        Arguments: t (float)
+
+        Outputs: NA
+        """
         sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)' % (100 * t/self.T, t, self.T))
         sys.stdout.flush()
     def run(self):
+        """
+        The main method which runs the simulation. This will collect relevant data throughout the simulation so that if matplotlib is installed plots of results can be accessed. Furthermore all completed players can be accessed in self.completed.
+
+        Arguments: NA
+
+        Outputs: NA
+        """
         t = 0
         self.newplayer()  # Create a new player
         nextplayer = self.players.pop()  # Set this player to be the next player
@@ -398,12 +418,22 @@ class Sim():
             self.newplayer()
             self.collectdata(t)
     def collectdata(self,t):
+        """
+        Collect data at each time step: updates data dictionaries.
+
+        Arguments: t (float)
+
+        Outputs: NA
+        """
         self.queuelengthdict[t] = len(self.queue)
         if self.server.free():
             self.systemstatedict[t] = 0
         else:
             self.systemstatedict[t] = self.queuelengthdict[t] + 1
     def plot(self, warmup=0):
+        """
+        Plot the data
+        """
         queuelengths = []
         systemstates = []
         timepoints = []
