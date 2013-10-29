@@ -304,6 +304,19 @@ class Server():
         return len(self.players) == 0
 
 class Sim():
+    """
+    The main class for a simulation.
+
+    Attributes:
+        - costofbalking (by default set to False for a basic simulation). Can be a float (indicating the cost of balking) in which case all players act selfishly. Can also be a list: l. In which case l[0] represents proportion of selfish players (other players being social players). l[1] then indicates cost of balking.
+        - T total run time (float)
+        - lmbda: arrival rate (float)
+        - mu: service rate (float)
+        - players: list of players (list)
+
+    Methods:
+        - run: runs the simulation model
+    """
     def __init__(self, T, lmbda, mu, speed=6, costofbalking=False):
         """
         costofbalking: an integer or a list. If it is a list, the first element is the probability of having a selfish player
