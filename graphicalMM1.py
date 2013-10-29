@@ -73,20 +73,31 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, seflishsystemstate
         - optimalsystemstates (list of integers)
         - timtepoints (list of integers)
     """
+    queuelengths = [sum(k) for k in zip(selfishqueuelengths, optimalqueuelengths)]
+    systemstates = [sum(k) for k in zip(selfishsystemstates, optimalsystemstates)]
     plt.figure(1)
     plt.subplot(221)
-    plt.hist(selfishqueuelengths, normed=True, bins=min(20, max(queuelengths)))
+    plt.hist([selfishqueuelengths, optimalqueuelengths, queuelengths], normed=True, bins=min(20, max(queuelengths)), label=['Selfish players','Optimal players','Total players'])
+    plt.legend()
     plt.title("Queue length")
     plt.subplot(222)
-    plt.hist(systemstates, normed=True, bins=min(20, max(systemstates)))
+    plt.hist([selfishsystemstates, optimalsystemstates, systemstates], normed=True, bins=min(20, max(systemstates)), label=['Selfish players','Optimal players','Total players'])
+    plt.legend()
     plt.title("System state")
     plt.subplot(223)
-    plt.plot(timepoints, movingaverage(queuelengths))
+    plt.plot(timepoints, movingaverage(selfishqueuelengths), label='Selfish players')
+    plt.plot(timepoints, movingaverage(optimalqueuelengths), label='Optimal players', color='green')
+    plt.plot(timepoints, movingaverage(queuelengths), label='Total', color='red')
+    plt.legend()
     plt.title("Mean queue length")
     plt.subplot(224)
-    plt.plot(timepoints, movingaverage(systemstates))
+    plt.plot(timepoints, movingaverage(selfishsystemstates), label='Selfish players')
+    plt.plot(timepoints, movingaverage(optimalsystemstates), label='Optimal players', color='green')
+    plt.plot(timepoints, movingaverage(systemstates), label='Total', color='red')
+    plt.legend()
     plt.title("Mean system state")
     plt.show()
+
 def naorthreshold(lmbda, mu, costofbalking):
     """
     Function to return Naor's threshold for optimal behaviour in an M/M/1 queue. This is taken from Naor's 1969 paper: 'The regulation of queue size by Levying Tolls'
@@ -497,15 +508,17 @@ class Sim():
         except:
             sys.stdout.write("matplotlib does not seem to be installed: no  plots can be produced.")
             return
-        queuelengths = []
-        systemstates = []
-        timepoints = []
-        for t in self.queuelengthdict:
-            if t >= warmup:
-                queuelengths.append(self.queuelengthdict[t])
-                systemstates.append(self.systemstatedict[t])
-                timepoints.append(t)
-        plotwithnobalkers()
+        if self.costofbalking:
+        else:
+            queuelengths = []
+            systemstates = []
+            timepoints = []
+            for t in self.queuelengthdict:
+                if t >= warmup:
+                    queuelengths.append(self.queuelengthdict[t])
+                    systemstates.append(self.systemstatedict[t])
+                    timepoints.append(t)
+            plotwithnobalkers()
 
 if __name__ == '__main__':
     #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
