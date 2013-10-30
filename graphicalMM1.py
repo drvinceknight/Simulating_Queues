@@ -26,7 +26,9 @@ def mean(lst):
 
     Output: the mean of lst
     """
-    return sum(lst) / len(lst)
+    if len(lst) > 0:
+        return sum(lst) / len(lst)
+    return False
 
 def movingaverage(lst):
     """
@@ -629,13 +631,28 @@ class Sim():
             meanselfishcost = selfishprobbalk * self.costofbalking[1] + sum(selfishservicetimes) + sum(selfishwaitingtimes)
             meanoptimalcost = optimalprobbalk * self.costofbalking[1] + sum(optimalservicetimes) + sum(optimalwaitingtimes)
             meancost = meanselfishcost + meanoptimalcost
-            meanselfishcost /= selfishprobbalk + len(selfishwaitingtimes)
-            meanoptimalcost /= optimalprobbalk + len(optimalwaitingtimes)
-            meancost /= selfishprobbalk + optimalprobbalk + len(selfishwaitingtimes) + len(optimalwaitingtimes)
+            if len(selfishwaitingtimes) + selfishprobbalk != 0:
+                meanselfishcost /= selfishprobbalk + len(selfishwaitingtimes)
+            else:
+                meanselfishcost = False
+            if len(optimalwaitingtimes) + optimalprobbalk != 0:
+                meanoptimalcost /= optimalprobbalk + len(optimalwaitingtimes)
+            else:
+                meanselfishcost = False
 
-            selfishprobbalk /= selfishprobbalk + len(selfishwaitingtimes)
-            optimalprobbalk /= optimalprobbalk + len(optimalwaitingtimes)
+            if selfishprobbalk + optimalprobbalk + len(selfishwaitingtimes) + len(optimalwaitingtimes) != 0:
+                meancost /= selfishprobbalk + optimalprobbalk + len(selfishwaitingtimes) + len(optimalwaitingtimes)
+            else:
+                meancost = False
 
+            if selfishprobbalk + len(selfishwaitingtimes) != 0:
+                selfishprobbalk /= selfishprobbalk + len(selfishwaitingtimes)
+            else:
+                selfishprobbalk = False
+            if optimalprobbalk + len(optimalwaitingtimes) != 0:
+                optimalprobbalk /= optimalprobbalk + len(optimalwaitingtimes)
+            else:
+                optimalprobbalk = False
 
             sys.stdout.write("\n%sSummary statistics%s\n" % (10*"=",10*"="))
 
@@ -661,12 +678,8 @@ class Sim():
 
 
 if __name__ == '__main__':
-    q = Sim(50, 2, 1, speed=10, costofbalking = [.5,7])
-    #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
-    #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
-    #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
-    #q = Sim(200, 2, 1, speed=10, costofbalking = [.2,7])
-    #q = Sim(200, 2, 1, speed=0, costofbalking = [.5,7])
+    #q = Sim(500, 2, 1, speed=10, costofbalking = [0,7])
+    q = Sim(500, 2, 1, speed=10, costofbalking = [1,7])
     q.run()
     q.printsummary()
     q.plot()
