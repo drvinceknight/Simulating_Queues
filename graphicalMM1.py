@@ -90,23 +90,23 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstate
     systemstates = [sum(k) for k in zip(selfishsystemstates, optimalsystemstates)]
     fig = plt.figure(1)
     plt.subplot(221)
-    plt.hist([selfishqueuelengths, optimalqueuelengths, queuelengths], normed=True, bins=min(20, max(queuelengths)), label=['Selfish players','Optimal players','Total players'])
+    plt.hist([selfishqueuelengths, optimalqueuelengths, queuelengths], normed=True, bins=min(20, max(queuelengths)), label=['Selfish players','Optimal players','Total players'], color=['red', 'green', 'blue'])
     #plt.legend()
     plt.title("Queue length")
     plt.subplot(222)
-    plt.hist([selfishsystemstates, optimalsystemstates, systemstates], normed=True, bins=min(20, max(systemstates)), label=['Selfish players','Optimal players','Total players'])
+    plt.hist([selfishsystemstates, optimalsystemstates, systemstates], normed=True, bins=min(20, max(systemstates)), label=['Selfish players','Optimal players','Total players'], color=['red', 'green', 'blue'])
     #plt.legend()
     plt.title("System state")
     plt.subplot(223)
-    plt.plot(timepoints, movingaverage(selfishqueuelengths), label='Selfish players')
+    plt.plot(timepoints, movingaverage(selfishqueuelengths), label='Selfish players', color='red')
     plt.plot(timepoints, movingaverage(optimalqueuelengths), label='Optimal players', color='green')
-    plt.plot(timepoints, movingaverage(queuelengths), label='Total', color='red')
+    plt.plot(timepoints, movingaverage(queuelengths), label='Total', color='blue')
     #plt.legend()
     plt.title("Mean queue length")
     plt.subplot(224)
-    line1, =  plt.plot(timepoints, movingaverage(selfishsystemstates), label='Selfish players')
+    line1, =  plt.plot(timepoints, movingaverage(selfishsystemstates), label='Selfish players', color='red')
     line2, = plt.plot(timepoints, movingaverage(optimalsystemstates), label='Optimal players', color='green')
-    line3, = plt.plot(timepoints, movingaverage(systemstates), label='Total', color='red')
+    line3, = plt.plot(timepoints, movingaverage(systemstates), label='Total', color='blue')
     #plt.legend()
     plt.title("Mean system state")
     fig.legend([line1,line2,line3],['Selfish players', 'Optimal players', 'Total'],loc='lower center',fancybox=True,ncol=3, bbox_to_anchor=(.5,0))
@@ -217,7 +217,7 @@ class Player(Turtle):
             self.move(self.server.position[0], self.server.position[1])
             self.servicedate = t + self.servicetime
             self.server.start(self)
-            self.color('green')
+            self.color('gold')
             self.endqueuedate = t
 
     def endservice(self):
@@ -287,7 +287,7 @@ class OptimalPlayer(Player):
         """
         self.penup()
         self.arrivaldate = t
-        self.color('gold')
+        self.color('green')
         queuelength = len(self.queue)
         if (queuelength) < self.naorthreshold:
             self.queue.join(self)
@@ -679,7 +679,8 @@ class Sim():
 
 if __name__ == '__main__':
     #q = Sim(500, 2, 1, speed=10, costofbalking = [0,7])
-    q = Sim(500, 2, 1, speed=10, costofbalking = [1,7])
+    #q = Sim(500, 2, 1, speed=10, costofbalking = [1,7])
+    q = Sim(500, 2, 1, speed=10, costofbalking = [.5,7])
     q.run()
-    q.printsummary()
+    q.printsummary(warmup=200)
     q.plot()
