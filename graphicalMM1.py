@@ -175,6 +175,7 @@ class Player(Turtle):
         self.shape('circle')
         self.speed(speed)
         self.balked = False
+
     def move(self, x, y):
         """
             A method that moves our player to a given point
@@ -187,6 +188,7 @@ class Player(Turtle):
         """
         self.setx(x)
         self.sety(y)
+
     def arrive(self, t):
         """
         A method that make our player arrive (the player is first created to generate an interarrival time, service time etc...).
@@ -200,6 +202,7 @@ class Player(Turtle):
         self.move(self.queue.position[0] + 5, self.queue.position[1])
         self.color('blue')
         self.queue.join(self)
+
     def startservice(self, t):
         """
         A method that makes our player start service (This moves the graphical representation of the player and also make the queue update it's graphics).
@@ -214,6 +217,7 @@ class Player(Turtle):
             self.server.start(self)
             self.color('green')
             self.endqueuedate = t
+
     def endservice(self):
         """
         A method that makes our player end service (This moves the graphical representation of the player and updates the server to be free).
@@ -549,11 +553,41 @@ class Sim():
                     timepoints.append(t)
             plotwithnobalkers(queuelengths, systemstates, timepoints)
 
+    def printsummary(self, warmup=0):
+        """
+        A method to print summary statistics.
+        """
+        if not self.costofbalking:
+            queuelengths = []
+            systemstates = []
+            for t in self.queuelengthdict:
+                if t >= warmup:
+                    queuelengths.append(self.queuelengthdict[t])
+                    systemstates.append(self.systemstatedict[t])
+            meanqueuelength = mean(queuelengths)
+            meansystemstate = mean(systemstates)
+            waitingtimes = []
+            servicetimes = []
+            for p in self.completed:
+                if p.arrivaldate >= warmup:
+                    waitingtimes.append(p.waitingtime)
+                    servicetimes.append(p.servicetime)
+            meanwaitingtime = mean(waitingtimes)
+            meanservicetime = mean(servicetimes)
+            sys.stdout.write("%sSummary statistics%s\n" % (20*"-",20*"-"))
+            sys.stdout.write("Mean queue length: %.02f\n" % meanqueuelength)
+            sys.stdout.write("Mean system state: %.02f\n" % meansystemstate)
+            sys.stdout.write("Mean waiting time: %.02f\n" % meanwaitingtime)
+            sys.stdout.write("Mean service time: %.02f\n" % meanservicetime)
+
+
 if __name__ == '__main__':
+    q = Sim(50, 2, 1, speed=10)
     #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.2,7])
-    q = Sim(200, 2, 1, speed=0, costofbalking = [.5,7])
+    #q = Sim(200, 2, 1, speed=0, costofbalking = [.5,7])
     q.run()
+    q.printsummary()
     q.plot()
