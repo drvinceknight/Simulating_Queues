@@ -573,16 +573,95 @@ class Sim():
                     waitingtimes.append(p.waitingtime)
                     servicetimes.append(p.servicetime)
             meanwaitingtime = mean(waitingtimes)
-            meanservicetime = mean(servicetimes)
-            sys.stdout.write("%sSummary statistics%s\n" % (20*"-",20*"-"))
+            meansystemtime = mean(servicetimes) + meanwaitingtime
+            sys.stdout.write("\n%sSummary statistics%s\n" % (10*"-",10*"-"))
             sys.stdout.write("Mean queue length: %.02f\n" % meanqueuelength)
             sys.stdout.write("Mean system state: %.02f\n" % meansystemstate)
             sys.stdout.write("Mean waiting time: %.02f\n" % meanwaitingtime)
-            sys.stdout.write("Mean service time: %.02f\n" % meanservicetime)
+            sys.stdout.write("Mean system time: %.02f\n" % meansystemtime)
+            sys.stdout.write(39 * "-" + "\n")
+        else:
+
+            selfishqueuelengths = []
+            optimalqueuelengths = []
+            selfishsystemstates = []
+            optimalsystemstates = []
+            timepoints = []
+            for t in self.queuelengthdict:
+                if t >= warmup:
+                    selfishqueuelengths.append(self.queuelengthdict[t][0])
+                    optimalqueuelengths.append(self.queuelengthdict[t][1])
+                    selfishsystemstates.append(self.systemstatedict[t][0])
+                    optimalsystemstates.append(self.systemstatedict[t][1])
+            meanselfishqueuelength = mean(selfishqueuelengths)
+            meanoptimalqueuelength = mean(optimalqueuelengths)
+            meanqueuelength = mean([sum(k) for k in zip(selfishqueuelengths, optimalqueuelengths)])
+            meanselfishsystemstate = mean(selfishsystemstates)
+            meanoptimalsystemstate = mean(optimalsystemstates)
+            meansystemstate = mean([sum(k) for k in zip(selfishsystemstates, optimalsystemstates)])
+
+            selfishwaitingtimes = []
+            optimalwaitingtimes = []
+            selfishservicetimes = []
+            optimalservicetimes = []
+            for p in self.completed:
+                if p.arrivaldate >= warmup:
+                    if type(p) is SelfishPlayer:
+                        selfishwaitingtimes.append(p.waitingtime)
+                        selfishservicetimes.append(p.servicetime)
+                    else:
+                        optimalwaitingtimes.append(p.waitingtime)
+                        optimalservicetimes.append(p.servicetime)
+            meanselfishwaitingtime = mean(selfishwaitingtimes)
+            meanselfishsystemtime = mean(selfishservicetimes) + meanselfishwaitingtime
+            meanoptimalwaitingtime = mean(optimalwaitingtimes)
+            meanoptimalsystemtime = mean(optimalservicetimes) + meanoptimalwaitingtime
+
+            selfishprobbalk = 0
+            optimalprobbalk = 0
+            for p in self.balked:
+                if p.arrivaldate >= warmup:
+                    if type(p) is SelfishPlayer:
+                        selfishprobbalk += 1
+                    else:
+                        optimalprobbalk += 1
+
+            meanselfishcost = selfishprobbalk * self.costofbalking[1] + sum(selfishservicetimes) + sum(selfishwaitingtimes)
+            meanoptimalcost = optimalprobbalk * self.costofbalking[1] + sum(optimalservicetimes) + sum(optimalwaitingtimes)
+            meancost = meanselfishcost + meanoptimalcost
+            meanselfishcost /= selfishprobbalk + len(selfishwaitingtimes)
+            meanoptimalcost /= optimalprobbalk + len(optimalwaitingtimes)
+            meancost /= selfishprobbalk + optimalprobbalk + len(selfishwaitingtimes) + len(optimalwaitingtimes)
+
+            selfishprobbalk /= selfishprobbalk + len(selfishwaitingtimes)
+            optimalprobbalk /= optimalprobbalk + len(optimalwaitingtimes)
+
+
+            sys.stdout.write("\n%sSummary statistics%s\n" % (10*"=",10*"="))
+
+            sys.stdout.write("\n%sSelfish players%s\n" % (13*"-",10*"-"))
+            sys.stdout.write("Mean queue length: %.02f\n" % meanselfishqueuelength)
+            sys.stdout.write("Mean system state: %.02f\n" % meanselfishsystemstate)
+            sys.stdout.write("Mean waiting time: %.02f\n" % meanselfishwaitingtime)
+            sys.stdout.write("Mean system time: %.02f\n" % meanselfishsystemtime)
+            sys.stdout.write("Probability of balking: %.02f\n" % selfishprobbalk)
+
+            sys.stdout.write("\n%sOptimal players%s\n" % (13*"-",10*"-"))
+            sys.stdout.write("Mean queue length: %.02f\n" % meanoptimalqueuelength)
+            sys.stdout.write("Mean system state: %.02f\n" % meanoptimalsystemstate)
+            sys.stdout.write("Mean waiting time: %.02f\n" % meanoptimalwaitingtime)
+            sys.stdout.write("Mean system time: %.02f\n" % meanoptimalsystemtime)
+            sys.stdout.write("Probability of balking: %.02f\n" % optimalprobbalk)
+
+            sys.stdout.write("\n%sOverall mean cost (in time)%s\n" % (9*"-","-"))
+            sys.stdout.write("All players: %.02f\n" % meancost)
+            sys.stdout.write("Selfish players: %.02f\n" % meanselfishcost)
+            sys.stdout.write("Optimal players: %.02f\n" % meanoptimalcost)
+            sys.stdout.write(39 * "=" + "\n")
 
 
 if __name__ == '__main__':
-    q = Sim(50, 2, 1, speed=10)
+    q = Sim(50, 2, 1, speed=10, costofbalking = [.5,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [0,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [1,7])
     #q = Sim(200, 2, 1, speed=10, costofbalking = [.8,7])
