@@ -27,7 +27,6 @@ If people are interested in discrete event simulation within python I know that 
 Currently on the to do list:
 
 - Include csv write (of results)
-- Include summary statistics printed to screen
 - Write command line argparse
 
 # License Information
