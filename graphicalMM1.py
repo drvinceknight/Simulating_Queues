@@ -534,11 +534,11 @@ class Sim():
             else:
                 self.systemstatedict[t] = self.queuelengthdict[t] + 1
 
-    def plot(self, warmup=0, savefig):
+    def plot(self, savefig, warmup=0):
         """
         Plot the data
         """
-        string = "lmbda=%s-mu=%s-T=%s-cost=%s" % (self.lmbda, self.mu, self.T, self.costofbalking) # An identifier
+        string = "lmbda=%s-mu=%s-T=%s-cost=%s.pdf" % (self.lmbda, self.mu, self.T, self.costofbalking) # An identifier
         if self.costofbalking:
             selfishqueuelengths = []
             optimalqueuelengths = []
@@ -695,7 +695,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', action="store", dest="probofselfish", help='Proportion of selfish players (default: 0)', default=0, type=float)
     parser.add_argument('-c', action="store", dest="costofbalking", help='Cost of balking (default: False)', default=False, type=float)
     parser.add_argument('-w', action="store", dest="warmuptime", help='Warm up time', default=0, type=float)
-    parser.add_argument('-s', action="store", dest="savefig", help='Boolean to save the figure or not', default=0, type=bool)
+    parser.add_argument('-s', action="store", dest="savefig", help='Boolean to save the figure or not', default=False, type=bool)
     inputs = parser.parse_args()
     lmbda = inputs.lmbda
     mu = inputs.mu
