@@ -40,7 +40,7 @@ def movingaverage(lst):
     """
     return [mean(lst[:k]) for k in range(1 , len(lst) + 1)]
 
-def plotwithnobalkers(queuelengths, systemstates, timepoints):
+def plotwithnobalkers(queuelengths, systemstates, timepoints, savefig, string):
     """
     A function to plot histograms and timeseries.
 
@@ -68,9 +68,12 @@ def plotwithnobalkers(queuelengths, systemstates, timepoints):
     plt.subplot(224)
     plt.plot(timepoints, movingaverage(systemstates))
     plt.title("Mean system state")
-    plt.show()
+    if savefig:
+        plt.savefig(string)
+    else:
+        plt.show()
 
-def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints):
+def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints, savefig, string):
     """
     A function to plot histograms and timeseries when you have two types of players
 
@@ -80,6 +83,8 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstate
         - selfishsystemstates (list of integers)
         - optimalsystemstates (list of integers)
         - timtepoints (list of integers)
+        - savefig (boolean)
+        - string (a string)
     """
     try:
         import matplotlib.pyplot as plt
@@ -111,7 +116,10 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstate
     plt.title("Mean system state")
     fig.legend([line1,line2,line3],['Selfish players', 'Optimal players', 'Total'],loc='lower center',fancybox=True,ncol=3, bbox_to_anchor=(.5,0))
     plt.subplots_adjust(bottom=.15)
-    plt.show()
+    if savefig:
+        plt.savefig(string)
+    else:
+        plt.show()
 
 def naorthreshold(lmbda, mu, costofbalking):
     """
@@ -526,10 +534,11 @@ class Sim():
             else:
                 self.systemstatedict[t] = self.queuelengthdict[t] + 1
 
-    def plot(self, warmup=0):
+    def plot(self, warmup=0, savefig):
         """
         Plot the data
         """
+        string = "lmbda=%s-mu=%s-T=%s-cost=%s" % (self.lmbda, self.mu, self.T, self.costofbalking) # An identifier
         if self.costofbalking:
             selfishqueuelengths = []
             optimalqueuelengths = []
@@ -543,7 +552,7 @@ class Sim():
                     selfishsystemstates.append(self.systemstatedict[t][0])
                     optimalsystemstates.append(self.systemstatedict[t][1])
                     timepoints.append(t)
-            plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints)
+            plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstates, optimalsystemstates, timepoints, savefig, string)
         else:
             queuelengths = []
             systemstates = []
@@ -553,7 +562,7 @@ class Sim():
                     queuelengths.append(self.queuelengthdict[t])
                     systemstates.append(self.systemstatedict[t])
                     timepoints.append(t)
-            plotwithnobalkers(queuelengths, systemstates, timepoints)
+            plotwithnobalkers(queuelengths, systemstates, timepoints, savefig, string)
 
     def printsummary(self, warmup=0):
         """
@@ -678,9 +687,24 @@ class Sim():
 
 
 if __name__ == '__main__':
-    #q = Sim(500, 2, 1, speed=10, costofbalking = [0,7])
-    #q = Sim(500, 2, 1, speed=10, costofbalking = [1,7])
-    q = Sim(500, 2, 1, speed=10, costofbalking = [.5,7])
+    import argparse
+    parser = argparse.ArgumentParser(description="A simulation of an MM1 queue with a graphical representation made using the python Turtle module. Also, allows for some agent based aspects which at present illustrate results from Naor's paper: 'The Regulation of Queue Size by Levying Tolls'")
+    parser.add_argument('-l', action="store", dest="lmbda", type=float, help='The arrival rate', default=2)
+    parser.add_argument('-m', action="store", dest="mu", type=float, help='The service rate', default = 1)
+    parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=500)
+    parser.add_argument('-p', action="store", dest="probofselfish", help='Proportion of selfish players (default: 0)', default=0, type=float)
+    parser.add_argument('-c', action="store", dest="costofbalking", help='Cost of balking (default: False)', default=False, type=float)
+    parser.add_argument('-w', action="store", dest="warmuptime", help='Warm up time', default=0, type=float)
+    parser.add_argument('-s', action="store", dest="savefig", help='Boolean to save the figure or not', default=0, type=bool)
+    inputs = parser.parse_args()
+    lmbda = inputs.lmbda
+    mu = inputs.mu
+    T = inputs.T
+    warmup = inputs.warmuptime
+    savefig = inputs.savefig
+    if inputs.costofbalking:
+        costofbalking = [inputs.probofselfish, inputs.costofbalking]
+    q = Sim(T, lmbda, mu, speed=10, costofbalking=costofbalking)
     q.run()
-    q.printsummary(warmup=200)
-    q.plot()
+    q.printsummary(warmup=warmup)
+    q.plot(savefig)
