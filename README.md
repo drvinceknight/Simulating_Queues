@@ -37,7 +37,13 @@ Finally the file can be passed various arguments at the command line:
 $ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True
 ~~~
 
-This would run the simulation with an arrival rate of 5, a service rate of 2, for a total runtime of 500 time units, with a warm up period of 200 (for summary statistics) and the option to save summary graphs is set to True (as opposed to them being displayed by the matplotlib viewer).
+This would run the simulation with an arrival rate of 5, a service rate of 2, for a total runtime of 500 time units, with a warm up period of 200 (for summary statistics) and the option to save summary graphs is set to True (as opposed to them being displayed by the matplotlib viewer). **I'd love for someone to improve the standard for passing command line arguments, I'm using argparse but would also like to be able to pass arguments in a given file format perhaps...**
+
+### Graphical output
+
+The main point of this script is that it creates a graphical representation of the queue (and customers going through the queue). This is useful when demonstrating certain concepts **but one of the little things I need to do is include an option to turn this off as it's slow**... Here's a gif showing the customers going through the queue:
+
+![](./Images/graphicalqueuedemo.gif)
 
 - Graphical output
 - Plots
