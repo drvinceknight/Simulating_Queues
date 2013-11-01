@@ -575,8 +575,8 @@ class Sim():
                 if t >= warmup:
                     self.queuelengths.append(self.queuelengthdict[t])
                     self.systemstates.append(self.systemstatedict[t])
-            self.meanqueuelength = mean(queuelengths)
-            self.meansystemstate = mean(systemstates)
+            self.meanqueuelength = mean(self.queuelengths)
+            self.meansystemstate = mean(self.systemstates)
             self.waitingtimes = []
             self.servicetimes = []
             for p in self.completed:

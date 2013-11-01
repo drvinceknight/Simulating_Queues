@@ -34,10 +34,10 @@ $ python graphicalMM1.py -h
 Finally the file can be passed various arguments at the command line:
 
 ~~~{.bash}
-$ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True
+$ python graphicalMM1.py -l 1 -m 2 -T 500 -w 200 -s True
 ~~~
 
-This would run the simulation with an arrival rate of 5, a service rate of 2, for a total runtime of 500 time units, with a warm up period of 200 (for summary statistics) and the option to save summary graphs is set to True (as opposed to them being displayed by the matplotlib viewer). **I'd love for someone to improve the standard for passing command line arguments, I'm using argparse but would also like to be able to pass arguments in a given file format perhaps...**
+This would run the simulation with an arrival rate of 1, a service rate of 2, for a total runtime of 500 time units, with a warm up period of 200 (for summary statistics) and the option to save summary graphs is set to True (as opposed to them being displayed by the matplotlib viewer). **I'd love for someone to improve the standard for passing command line arguments, I'm using argparse but would also like to be able to pass arguments in a given file format perhaps...**
 
 ### Graphical output
 
@@ -45,7 +45,13 @@ The main point of this script is that it creates a graphical representation of t
 
 ![](./Images/graphicalqueuedemo.gif)
 
-- Graphical output
+
+### Plots
+
+Once the simulation is finished a plot is created (which can be saved directly or displayed using the matplotlib viewer). This plot shows the average number of customers in the queue/system as well as the probability distribution of the queue/system:
+
+![](./Images/plotforbasicsim.png)
+
 - Plots
 - Selfish behaviour
 - Optimal behaviour
