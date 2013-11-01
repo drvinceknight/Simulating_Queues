@@ -52,6 +52,10 @@ Once the simulation is finished a plot is created (which can be saved directly o
 
 ![](./Images/plotforbasicsim.png)
 
+Summary statistics are also printed:
+
+![](./Images/summarystatisticsforbasicsim.png)
+
 - Plots
 - Selfish behaviour
 - Optimal behaviour
