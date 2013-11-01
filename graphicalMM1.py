@@ -584,7 +584,7 @@ class Sim():
                     self.waitingtimes.append(p.waitingtime)
                     self.servicetimes.append(p.servicetime)
             self.meanwaitingtime = mean(self.waitingtimes)
-            self.meansystemtime = mean(self.servicetimes) + meanwaitingtime
+            self.meansystemtime = mean(self.servicetimes) + self.meanwaitingtime
             sys.stdout.write("\n%sSummary statistics%s\n" % (10*"-",10*"-"))
             sys.stdout.write("Mean queue length: %.02f\n" % self.meanqueuelength)
             sys.stdout.write("Mean system state: %.02f\n" % self.meansystemstate)
