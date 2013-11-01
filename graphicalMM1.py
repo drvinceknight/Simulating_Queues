@@ -583,8 +583,8 @@ class Sim():
                 if p.arrivaldate >= warmup:
                     self.waitingtimes.append(p.waitingtime)
                     self.servicetimes.append(p.servicetime)
-            self.meanwaitingtime = mean(waitingtimes)
-            self.meansystemtime = mean(servicetimes) + meanwaitingtime
+            self.meanwaitingtime = mean(self.waitingtimes)
+            self.meansystemtime = mean(self.ervicetimes) + meanwaitingtime
             sys.stdout.write("\n%sSummary statistics%s\n" % (10*"-",10*"-"))
             sys.stdout.write("Mean queue length: %.02f\n" % self.meanqueuelength)
             sys.stdout.write("Mean system state: %.02f\n" % self.meansystemstate)
