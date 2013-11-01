@@ -15,7 +15,30 @@ If people are interested in discrete event simulation within python I know that 
 
 ## Graphical simulation
 
-- How to run
+### Usage
+
+The file `graphicalMM1.py` is both a library and an executable. It can thus be run directly:
+
+~~~{.bash}
+$ python graphicalMM1.py
+~~~
+
+This will run the simulation with some default values.
+
+The file can be passed arguments. So help can be obtained by running:
+
+~~~{.bash}
+$ python graphicalMM1.py -h
+~~~
+
+Finally the file can be passed various arguments at the command line:
+
+~~~{.bash}
+$ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True
+~~~
+
+This would run the simulation with an arrival rate of 5, a service rate of 2, for a total runtime of 500 time units, with a warm up period of 200 (for summary statistics) and the option to save summary graphs is set to True (as opposed to them being displayed by the matplotlib viewer).
+
 - Graphical output
 - Plots
 - Selfish behaviour
