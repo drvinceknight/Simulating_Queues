@@ -114,7 +114,15 @@ Summary statistics are also printed:
 
 ![](./Images/summarystatisticsformixedsim.png)
 
-We see that at
+We see that almost all the optimal players were pushed out of the system by the selfish players. Also, the cost is here already quite reduced: 5.28.
+
+Here is a plot of the mean cost as we increase the proportion of selfish players:
+
+![](./Images/varyingp.png)
+
+We see that for our parameters we only need a small number of optimal players to get quite a drastic reduction of costs.
+
+**Note that none of the results here should be taken as anything more than a demonstration of what the simulation can do. A number of trials would need to be run to ensure that the effect of stochasticity is taken in to account and further more it does not look like the simulation is at steady state for the selfish example shown here.**
 
 ### Development
 
