@@ -701,7 +701,7 @@ if __name__ == '__main__':
     mu = inputs.mu
     T = inputs.T
     warmup = inputs.warmuptime
-    savefig = inputs.savefig
+    savefig = bool(inputs.savefig)
     if inputs.costofbalking:
         costofbalking = [inputs.probofselfish, inputs.costofbalking]
     q = Sim(T, lmbda, mu, speed=10, costofbalking=costofbalking)
