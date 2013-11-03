@@ -261,8 +261,8 @@ class SelfishPlayer(Player):
         self.penup()
         self.arrivaldate = t
         self.color('red')
-        queuelength = len(self.queue)
-        if (queuelength + 1) / (self.mu) < self.costofbalking:
+        systemstate = len(self.queue) + len(self.server)
+        if (systemstate + 1) / (self.mu) < self.costofbalking:
             self.queue.join(self)
             self.move(self.queue.position[0] + 5, self.queue.position[1])
         else:
@@ -296,8 +296,8 @@ class OptimalPlayer(Player):
         self.penup()
         self.arrivaldate = t
         self.color('green')
-        queuelength = len(self.queue)
-        if (queuelength) < self.naorthreshold:
+        systemstate = len(self.queue) + len(self.server)
+        if systemstate < self.naorthreshold:
             self.queue.join(self)
             self.move(self.queue.position[0] + 5, self.queue.position[1])
         else:
