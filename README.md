@@ -66,7 +66,7 @@ The graphicalMM1 library allows for this to be taken in to account.
 $ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True -p 1 -c 7
 ~~~
 
-Here we see a plot of the results:
+The `-p` flag is the proportion of selfish players and the `-c` flag the value of service (here set to 7). Here we see a plot of the results:
 
 ![](./Images/plotforselfishsim.png)
 
@@ -74,23 +74,56 @@ Summary statistics are also printed:
 
 ![](./Images/summarystatisticsforselfishsim.png)
 
-We see that despite players only joining when they expect to receive a cost less than 7 (passed to the executable with the `-c 7` option) the mean cost is .
+We see that despite players only joining when they expect to receive a cost less than 7 (passed to the executable with the `-c 7` option) the mean cost is 14.44. Note that the plot and summary statistics show results for 'optimal players'. What these are will become clear in the next section.
 
 This mean cost can in fact be minimized and how to do this was the main result in Naor's paper.
 
 ### Optimal behaviour
 
+There is a maximum length of the queue at which players should join that is given by Naor. The simulation also allows for this to be taken in to account.
+
+~~~{.bash}
+$ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True -p 0 -c 7
+~~~
+
+Here is a plot of the results:
+
+![](./Images/plotforoptimalsim.png)
+
+Summary statistics are also printed:
+
+![](./Images/summarystatisticsforoptimalsim.png)
+
+We see that the cost has indeed been reduced here (to 3.27).
+
 ### Mixed behaviour
 
-- Optimal behaviour
-- Mixed behaviour
+Finally, the model allows us to see how the system behaves when we have a mixture of optimal and selfish players:
+
+~~~{.bash}
+$ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True -p .85 -c 7
+~~~
+
+This would run with 85% of players acting selfishly.
+
+Here is a plot of the results:
+
+![](./Images/plotformixedsim.png)
+
+Summary statistics are also printed:
+
+![](./Images/summarystatisticsformixedsim.png)
+
+We see that at
 
 ### Development
 
-Currently on the to do list:
+Currently on the to do list (in order of importance):
 
-- Include csv write (of results)
-- Write command line argparse
+1. Include non graphical option
+2. Speed up graphics
+3. Include csv write (of results)
+4. Generalise to multi server queue
 
 # License Information
 This work is licensed under a [Creative Commons Attribution-ShareAlike 3.0](http://creativecommons.org/licenses/by-sa/3.0/us/) license.  You are free to:
