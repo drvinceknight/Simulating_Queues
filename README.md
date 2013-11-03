@@ -56,8 +56,32 @@ Summary statistics are also printed:
 
 ![](./Images/summarystatisticsforbasicsim.png)
 
-- Plots
-- Selfish behaviour
+### Selfish behaviour
+
+In a 1969 paper entitled 'The Regulation of Queue Size by Levying Tolls' Naor looks selfish behaviour in a single server queue. To simplify the work of Naor, if we assume that service is 'worth' some quantity of time (`time is mney') beta then players (as opposed to customers) will join the queue if and only if their expected time in the system is less than beta. **Players who join the queue recieve a cost corresponding to their time through the system and players who don't joine recieve beta**.
+
+The graphicalMM1 library allows for this to be taken in to account.
+
+~~~{.bash}
+$ python graphicalMM1.py -l 5 -m 2 -T 500 -w 200 -s True -p 1 -c 7
+~~~
+
+Here we see a plot of the results:
+
+![](./Images/plotforselfishsim.png)
+
+Summary statistics are also printed:
+
+![](./Images/summarystatisticsforselfishsim.png)
+
+We see that despite players only joining when they expect to receive a cost less than 7 (passed to the executable with the `-c 7` option) the mean cost is .
+
+This mean cost can in fact be minimized and how to do this was the main result in Naor's paper.
+
+### Optimal behaviour
+
+### Mixed behaviour
+
 - Optimal behaviour
 - Mixed behaviour
 

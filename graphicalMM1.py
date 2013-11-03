@@ -97,7 +97,7 @@ def plotwithbalkers(selfishqueuelengths, optimalqueuelengths, selfishsystemstate
     plt.subplot(221)
     plt.hist([selfishqueuelengths, optimalqueuelengths, queuelengths], normed=True, bins=min(20, max(queuelengths)), label=['Selfish players','Optimal players','Total players'], color=['red', 'green', 'blue'])
     #plt.legend()
-    plt.title("Number in queu")
+    plt.title("Number in queue")
     plt.subplot(222)
     plt.hist([selfishsystemstates, optimalsystemstates, systemstates], normed=True, bins=min(20, max(systemstates)), label=['Selfish players','Optimal players','Total players'], color=['red', 'green', 'blue'])
     #plt.legend()
